@@ -5,6 +5,7 @@
     android:id="@+id/imageSelection"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".ImageSelectionActivity">
 
     <LinearLayout
@@ -36,9 +37,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:padding="8dp"
+        android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/buttonContainer"
-        app:layout_constraintBottom_toTopOf="@id/uploadButton"
-        android:clipToPadding="false"/>
+        app:layout_constraintBottom_toTopOf="@id/uploadButton"/>
 
     <Button
         android:id="@+id/uploadButton"

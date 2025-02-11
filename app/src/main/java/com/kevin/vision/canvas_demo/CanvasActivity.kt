@@ -15,7 +15,8 @@ import androidx.core.view.WindowInsetsCompat
 
 class CanvasActivity : AppCompatActivity() {
     private lateinit var imageCanvasView: ImageCanvasView
-    private val permissionRequestCode = 1
+    private val PERMISSION_REQUEST_CODE = 100
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -80,7 +81,7 @@ class CanvasActivity : AppCompatActivity() {
         ActivityCompat.requestPermissions(
             this,
             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-            permissionRequestCode
+            PERMISSION_REQUEST_CODE
         )
     }
 
@@ -98,7 +99,7 @@ class CanvasActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == permissionRequestCode) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 saveImage()
             } else {

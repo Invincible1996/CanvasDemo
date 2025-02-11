@@ -21,9 +21,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CanvasDemo"
         tools:targetApi="31">
+        
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.CanvasDemo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -32,11 +34,13 @@
         
         <activity
             android:name=".CanvasActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.CanvasDemo" />
             
         <activity
             android:name=".ImageSelectionActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.CanvasDemo" />
 
         <activity
             android:name=".ImagePreviewActivity"
