@@ -24,55 +24,76 @@
         app:layout_constraintBottom_toTopOf="@+id/buttonsContainer"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/buttonsContainer"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:layout_margin="16dp"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:padding="8dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/undoButton"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="撤销"
-                android:layout_margin="4dp" />
+                android:contentDescription="撤销"
+                app:icon="@drawable/ic_undo"
+                app:iconTint="?attr/colorOnSurface" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/redoButton"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="还原"
-                android:layout_margin="4dp" />
-        </LinearLayout>
+                android:contentDescription="还原"
+                app:icon="@drawable/ic_redo"
+                app:iconTint="?attr/colorOnSurface" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/toggleModeButton"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="切换模式"
-                android:layout_margin="4dp" />
+                android:contentDescription="切换模式"
+                app:icon="@drawable/ic_edit"
+                app:iconTint="?attr/colorOnSurface" />
 
-            <Button
-                android:id="@+id/saveButton"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/colorPickerButton"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="保存"
-                android:layout_margin="4dp" />
+                android:contentDescription="选择颜色"
+                app:icon="@drawable/ic_color"
+                app:iconTint="?attr/colorOnSurface" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/brushSizeButton"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="设置画笔大小"
+                app:icon="@drawable/ic_brush_size"
+                app:iconTint="?attr/colorOnSurface" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saveButton"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="保存"
+                app:icon="@drawable/ic_save"
+                app:iconTint="?attr/colorOnSurface" />
         </LinearLayout>
-    </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

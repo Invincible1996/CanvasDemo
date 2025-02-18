@@ -19,32 +19,45 @@ class ImageCanvasView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private var image: Bitmap? = null
-    private val rectangles = mutableListOf<RectF>()
-    private val deletedRectangles = mutableListOf<RectF>()  // 存储已删除的矩形
+    private data class ColoredRect(val rect: RectF, val color: Int, val strokeWidth: Float)
+    private val rectangles = mutableListOf<ColoredRect>()
+    private val deletedRectangles = mutableListOf<ColoredRect>()  // 存储已删除的矩形
     private var currentRect: RectF? = null
-    private var draggedRect: RectF? = null
+    private var draggedRect: ColoredRect? = null
     private var lastTouchX = 0f
     private var lastTouchY = 0f
     private var scaleFactor = 1f
     private var isDrawMode = true  // 添加绘制模式标志
     private var isScaling = false  // 添加缩放状态标志
+    private var normalColor = Color.RED  // 添加颜色变量
+    private var selectedColor = Color.BLUE  // 添加选中状态的颜色变量
     private val normalPaint = Paint().apply {
-        color = Color.RED
         style = Paint.Style.STROKE
         strokeWidth = 5f
     }
     private val selectedPaint = Paint().apply {
-        color = Color.BLUE
+        color = selectedColor
         style = Paint.Style.STROKE
         strokeWidth = 5f
     }
+
+    fun setStrokeWidth(width: Float) {
+        normalPaint.strokeWidth = width
+        selectedPaint.strokeWidth = width
+        // 将当前画笔宽度保存为类成员变量
+        currentStrokeWidth = width
+        invalidate()
+    }
+
+    private var currentStrokeWidth = 5f  // 添加新的成员变量来保存当前画笔宽度
+
     private val matrix = Matrix()
     private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
     private val overlayPaint = Paint().apply {
         color = Color.parseColor("#33000000")  // 半透明黑色
         style = Paint.Style.FILL
     }
-    private var touchedRect: RectF? = null  // 记录当前触摸的矩形
+    private var touchedRect: ColoredRect? = null  // 记录当前触摸的矩形
 
     fun setImage(bitmap: Bitmap) {
         image = bitmap
@@ -123,11 +136,13 @@ class ImageCanvasView @JvmOverloads constructor(
             canvas.scale(scaleFactor, scaleFactor)
             canvas.drawBitmap(img, matrix, null)
             
-            for (rect in rectangles) {
-                canvas.drawRect(rect, normalPaint)
+            for (coloredRect in rectangles) {
+                normalPaint.color = coloredRect.color
+                canvas.drawRect(coloredRect.rect, normalPaint)
             }
             
             currentRect?.let {
+                normalPaint.color = normalColor
                 canvas.drawRect(it, normalPaint)
             }
             
@@ -146,23 +161,23 @@ class ImageCanvasView @JvmOverloads constructor(
             canvas.drawBitmap(img, matrix, null)
             
             // Draw all rectangles
-            for (rect in rectangles) {
-                // 选择画笔：如果是当前触摸的矩形使用蓝色，否则使用红色
-                val rectPaint = if (rect == touchedRect || rect == draggedRect) {
-                    selectedPaint
+            for (coloredRect in rectangles) {
+                // 选择画笔：如果是当前触摸的矩形使用蓝色，否则使用原始颜色
+                if (coloredRect == touchedRect || coloredRect == draggedRect) {
+                    selectedPaint.strokeWidth = coloredRect.strokeWidth
+                    canvas.drawRect(coloredRect.rect, selectedPaint)
+                    canvas.drawRect(coloredRect.rect, overlayPaint)
                 } else {
-                    normalPaint
-                }
-                canvas.drawRect(rect, rectPaint)
-                
-                // 如果是当前触摸的矩形，绘制蒙层
-                if (rect == touchedRect || rect == draggedRect) {
-                    canvas.drawRect(rect, overlayPaint)
+                    normalPaint.color = coloredRect.color
+                    normalPaint.strokeWidth = coloredRect.strokeWidth
+                    canvas.drawRect(coloredRect.rect, normalPaint)
                 }
             }
             
             // Draw current rectangle if exists
             currentRect?.let {
+                normalPaint.color = normalColor
+                normalPaint.strokeWidth = currentStrokeWidth  // 使用当前设置的画笔宽度
                 canvas.drawRect(it, normalPaint)
             }
             
@@ -202,8 +217,9 @@ class ImageCanvasView @JvmOverloads constructor(
                     val dx = x - lastTouchX
                     val dy = y - lastTouchY
                     
-                    draggedRect?.let { rect ->
+                    draggedRect?.let { coloredRect ->
                         // Move rectangle within image bounds
+                        val rect = coloredRect.rect
                         val newLeft = rect.left + dx
                         val newTop = rect.top + dy
                         val newRight = rect.right + dx
@@ -228,11 +244,11 @@ class ImageCanvasView @JvmOverloads constructor(
             MotionEvent.ACTION_UP -> {
                 if (!isScaling && draggedRect == null && currentRect != null) {
                     normalizeRect(currentRect!!)
-                    rectangles.add(currentRect!!)
+                    // 使用当前保存的画笔宽度创建新的矩形
+                    rectangles.add(ColoredRect(currentRect!!, normalColor, currentStrokeWidth))
                     deletedRectangles.clear()  // 添加新矩形时清空已删除列表
                 }
                 currentRect = null
-                draggedRect = null
                 touchedRect = null  // 清除触摸状态
                 isScaling = false  // 重置缩放状态
                 invalidate()
@@ -257,10 +273,10 @@ class ImageCanvasView @JvmOverloads constructor(
         }
     }
 
-    private fun findTouchedRectangle(x: Float, y: Float): RectF? {
-        for (rect in rectangles.asReversed()) {
-            if (rect.contains(x, y)) {
-                return rect
+    private fun findTouchedRectangle(x: Float, y: Float): ColoredRect? {
+        for (coloredRect in rectangles.asReversed()) {
+            if (coloredRect.rect.contains(x, y)) {
+                return coloredRect
             }
         }
         return null
@@ -282,5 +298,35 @@ class ImageCanvasView @JvmOverloads constructor(
         override fun onScaleEnd(detector: ScaleGestureDetector) {
             isScaling = false  // 结束缩放时重置标志
         }
+    }
+
+    // 添加设置普通状态画笔颜色的方法
+    fun setNormalColor(color: Int) {
+        normalColor = color
+        normalPaint.color = color
+        invalidate()
+    }
+
+    // 添加设置选中状态画笔颜色的方法
+    fun setSelectedColor(color: Int) {
+        selectedColor = color
+        selectedPaint.color = color
+        invalidate()
+    }
+
+    // 添加同时设置两种状态画笔颜色的方法
+    fun setBothColors(normalColor: Int, selectedColor: Int) {
+        setNormalColor(normalColor)
+        setSelectedColor(selectedColor)
+    }
+
+    // 添加获取当前画笔宽度的方法
+    fun getCurrentStrokeWidth(): Float {
+        return currentStrokeWidth
+    }
+
+    // 获取当前正常状态的颜色
+    fun getCurrentColor(): Int {
+        return normalColor
     }
 }
